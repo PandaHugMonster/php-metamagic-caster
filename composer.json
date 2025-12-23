@@ -26,6 +26,7 @@
   "suggest": {
   },
   "autoload": {
+    "files": ["src/utils.php"],
     "psr-4": {
       "spaf\\metamagic\\caster\\": "src/"
     }

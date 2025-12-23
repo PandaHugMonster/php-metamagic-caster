@@ -1,69 +1,11 @@
 <?php
 
-use spaf\metamagic\enums\TargetType;
-use spaf\metamagic\exceptions\ClassReferenceException;
-use spaf\metamagic\MetaMagic;
-use spaf\metamagic\spells\SpellMethod;
+use spaf\metamagic\caster\attrs\CastFrom;
+use spaf\metamagic\caster\attrs\CastTo;
 use function spaf\simputils\basic\pd;
 
 include_once "vendor/autoload.php";
 
-/**
- * Attribute to mark methods that will perform "CastFrom" functionality.
- */
-#[Attribute(Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
-class CastFrom {
-	/**
-	 * @param class-string|string $type
-	 */
-	function __construct(
-		public string $type,
-	) {}
-}
-
-
-/**
- * Attribute to mark methods that will perform "CastTo" functionality.
- */
-#[Attribute(Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
-class CastTo {
-	/**
-	 * @param class-string|string $type
-	 */
-	function __construct(
-		public string $type,
-	) {}
-}
-
-/**
- * Helper function for easy casting/converting types and data.
- *
- * @param mixed $from
- * @param string $to
- * @return mixed
- * @throws ClassReferenceException
- */
-function cast(mixed $from, string $to): mixed {
-
-	/** @var SpellMethod $spell */
-	$spell = MetaMagic::findSpellOne(
-		refs: $from,
-		attrs: CastTo::class,
-		types: TargetType::MethodType,
-		filter: function (SpellMethod $spell) use ($to) {
-			/** @var CastTo $attr */
-			$attr = $spell->attr;
-			if ($attr->type == $to) {
-				return $spell;
-			}
-
-			return false;
-		}
-	);
-	if ($spell) {
-		return $spell($to);
-	}
-}
 
 class MyObj1 {
 	public function __construct(
@@ -90,7 +32,7 @@ class MyObj1 {
 	private function _rubbishC() {}
 
 	#[CastFrom(MyObj2::class)]
-	private function _castFromMyObj2(MyObj2 $from): static {
+    static private function _castFromMyObj2(MyObj2 $from): static {
 		$self = static::class;
 
 		return new $self(
